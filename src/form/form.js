@@ -2,6 +2,7 @@ import React from 'react';
 import TextField from '@mui/material/TextField';
 import {InputLabel} from '@mui/material';
 import NativeSelect from '@mui/material/NativeSelect';
+import Button from '@mui/material/Button';
 
 export const Form = () => (
   <>
@@ -21,6 +22,8 @@ export const Form = () => (
         <option value="furniture">furniture</option>
         <option value="clothing">clothing</option>
       </NativeSelect>
+
+      <Button>Submit</Button>
     </form>
   </>
 );
