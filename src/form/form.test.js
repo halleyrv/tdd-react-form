@@ -1,5 +1,5 @@
 import React from 'react';
-import {screen, render} from '@testing-library/react';
+import {screen, render, fireEvent} from '@testing-library/react';
 import {Form} from './form';
 
 describe('when the form is mounted', () => {
@@ -22,5 +22,19 @@ describe('when the form is mounted', () => {
 
   it('should exists submit button', () => {
     expect(screen.getByRole('button', {name: /submit/i})).toBeInTheDocument();
+  });
+});
+
+describe('when the user submits the form without values', () => {
+  it('should display validation messages', () => {
+    render(<Form />);
+    expect(screen.queryByText(/name is required/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/size is required/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/type is required/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+    expect(screen.queryByText(/name is required/i)).toBeInTheDocument();
+    expect(screen.queryByText(/size is required/i)).toBeInTheDocument();
+    expect(screen.queryByText(/type is required/i)).toBeInTheDocument();
   });
 });
