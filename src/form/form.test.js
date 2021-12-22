@@ -2,8 +2,9 @@ import React from 'react';
 import {screen, render, fireEvent} from '@testing-library/react';
 import {Form} from './form';
 
+beforeEach(() => render(<Form />));
+
 describe('when the form is mounted', () => {
-  beforeEach(() => render(<Form />));
   it('there must be a create product from page', () => {
     expect(
       screen.getByRole('heading', {name: /create product/i}),
@@ -27,7 +28,6 @@ describe('when the form is mounted', () => {
 
 describe('when the user submits the form without values', () => {
   it('should display validation messages', () => {
-    render(<Form />);
     expect(screen.queryByText(/name is required/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/size is required/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/type is required/i)).not.toBeInTheDocument();
@@ -36,5 +36,21 @@ describe('when the user submits the form without values', () => {
     expect(screen.queryByText(/name is required/i)).toBeInTheDocument();
     expect(screen.queryByText(/size is required/i)).toBeInTheDocument();
     expect(screen.queryByText(/type is required/i)).toBeInTheDocument();
+  });
+});
+
+describe('when the user blurs an empty field', () => {
+  it('should display a validation error message for the input name', () => {
+    fireEvent.blur(screen.getByLabelText(/name/i), {
+      target: {name: 'name', value: ''},
+    });
+    expect(screen.queryByText(/name is required/i)).toBeInTheDocument();
+  });
+
+  it('should display a validation error message for the input size', () => {
+    fireEvent.blur(screen.getByLabelText(/size/i), {
+      target: {name: 'size', value: ''},
+    });
+    expect(screen.queryByText(/size is required/i)).toBeInTheDocument();
   });
 });
