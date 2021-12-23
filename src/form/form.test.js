@@ -1,6 +1,18 @@
 import React from 'react';
-import {screen, render, fireEvent} from '@testing-library/react';
+import {screen, render, fireEvent, waitFor} from '@testing-library/react';
 import {Form} from './form';
+import {rest} from 'msw';
+import {setupServer} from 'msw/node';
+
+const server = setupServer(
+  rest.post('/products', (req, res, ctx) => res(ctx.status(201))),
+);
+
+beforeAll(() => server.listen());
+
+afterEach(() => server.resetHandlers());
+
+afterAll(() => server.close());
 
 beforeEach(() => render(<Form />));
 
@@ -52,5 +64,15 @@ describe('when the user blurs an empty field', () => {
       target: {name: 'size', value: ''},
     });
     expect(screen.queryByText(/size is required/i)).toBeInTheDocument();
+  });
+});
+
+describe('when the user submits the form', () => {
+  it('should the submit button be disabled until is done', async () => {
+    expect(screen.getByRole('button', {name: /submit/i})).not.toBeDisabled();
+    fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+    await waitFor(() => {
+      expect(screen.getByRole('button', {name: /submit/i})).toBeDisabled();
+    });
   });
 });

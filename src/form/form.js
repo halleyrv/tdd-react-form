@@ -5,15 +5,17 @@ import NativeSelect from '@mui/material/NativeSelect';
 import Button from '@mui/material/Button';
 
 export const Form = () => {
+  const [isSaving, setIsSaving] = useState(false);
   const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
     type: '',
   });
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     const {name, size, type} = e.target.elements;
 
+    setIsSaving(true);
     if (!name.value) {
       setFormErrors(prevState => ({...prevState, name: 'Name is required'}));
     }
@@ -23,6 +25,11 @@ export const Form = () => {
     if (!type.value) {
       setFormErrors(prevState => ({...prevState, type: 'Type is required'}));
     }
+    await fetch('/products', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+    setIsSaving(false);
   };
 
   const handleBlur = e => {
@@ -66,7 +73,9 @@ export const Form = () => {
         </NativeSelect>
         {formErrors.type.length && <p>{formErrors.type}</p>}
 
-        <Button type="submit">Submit</Button>
+        <Button disabled={isSaving} type="submit">
+          Submit
+        </Button>
       </form>
     </>
   );
