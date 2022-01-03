@@ -45,7 +45,7 @@ export const Form = () => {
 
   return (
     <>
-      <h1>create Product</h1>
+      <h1>Create Product</h1>
       <form onSubmit={handleSubmit}>
         <TextField
           label="name"
