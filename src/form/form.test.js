@@ -66,7 +66,7 @@ describe('when the user blurs an empty field', () => {
     expect(screen.queryByText(/name is required/i)).toBeInTheDocument();
   });
 
-  it('should display a validation error message for the input size', () => {
+  it('should display a validations error message for the input size', () => {
     fireEvent.blur(screen.getByLabelText(/size/i), {
       target: {name: 'size', value: ''},
     });
@@ -85,23 +85,31 @@ describe('when the user submits the form', () => {
   });
 
   it('the form page must display the success message "Product stored" and clean the fields values', async () => {
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/size/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/type/i)).toBeInTheDocument();
+    const nameInput = screen.getByLabelText(/name/i);
+    const sizeInput = screen.getByLabelText(/size/i);
+    const typeInput = screen.getByLabelText(/type/i);
 
-    fireEvent.change(screen.getByLabelText(/name/i), {
+    expect(nameInput).toBeInTheDocument();
+    expect(sizeInput).toBeInTheDocument();
+    expect(typeInput).toBeInTheDocument();
+
+    fireEvent.change(nameInput, {
       target: {name: 'name', value: 'my product'},
     });
-    fireEvent.change(screen.getByLabelText(/size/i), {
+    fireEvent.change(sizeInput, {
       target: {name: 'name', value: 10},
     });
-    fireEvent.change(screen.getByLabelText(/type/i), {
-      target: {name: 'type', value: 'electronic'},
+    fireEvent.change(typeInput, {
+      target: {name: 'name', value: 'electronic'},
     });
 
     fireEvent.click(screen.getByRole('button', {name: /submit/i}));
     await waitFor(() =>
       expect(screen.getByText(/product stored/i)).toBeInTheDocument(),
     );
+
+    expect(nameInput).toHaveValue('');
+    expect(sizeInput).toHaveValue('');
+    expect(typeInput).toHaveValue('');
   });
 });

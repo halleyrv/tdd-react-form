@@ -40,9 +40,10 @@ export const Form = () => {
     const {name, size, type} = e.target.elements;
 
     setIsSaving(true);
-    validateForm(getFormValues(name, size, type));
-    const response = await saveProduct(getFormValues(name, size, type));
+    validateForm(getFormValues({name, size, type}));
+    const response = await saveProduct(getFormValues({name, size, type}));
     if (response.status === CREATED_STATUS) {
+      e.target.reset();
       setIsSuccess(true);
     }
     setIsSaving(false);
