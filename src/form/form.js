@@ -5,9 +5,11 @@ import NativeSelect from '@mui/material/NativeSelect';
 import Button from '@mui/material/Button';
 
 import {saveProduct} from '../services/productServices';
+import {CREATED_STATUS} from '../consts/httpStatus';
 
 export const Form = () => {
   const [isSaving, setIsSaving] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
@@ -27,13 +29,22 @@ export const Form = () => {
     validateField({name: 'type', value: type});
   };
 
+  const getFormValues = ({name, size, type}) => ({
+    name: name.value,
+    size: size.value,
+    type: type.value,
+  });
+
   const handleSubmit = async e => {
     e.preventDefault();
     const {name, size, type} = e.target.elements;
 
     setIsSaving(true);
-    validateForm({name: name.value, size: size.value, type: type.value});
-    await saveProduct();
+    validateForm(getFormValues(name, size, type));
+    const response = await saveProduct(getFormValues(name, size, type));
+    if (response.status === CREATED_STATUS) {
+      setIsSuccess(true);
+    }
     setIsSaving(false);
   };
 
@@ -45,6 +56,7 @@ export const Form = () => {
   return (
     <>
       <h1>Create Product</h1>
+      {isSuccess && <p>Product stored</p>}
       <form onSubmit={handleSubmit}>
         <TextField
           label="name"
