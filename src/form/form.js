@@ -5,11 +5,12 @@ import NativeSelect from '@mui/material/NativeSelect';
 import Button from '@mui/material/Button';
 
 import {saveProduct} from '../services/productServices';
-import {CREATED_STATUS} from '../consts/httpStatus';
+import {CREATED_STATUS, ERROR_SERVER_STATUS} from '../consts/httpStatus';
 
 export const Form = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
   const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
@@ -46,6 +47,9 @@ export const Form = () => {
       e.target.reset();
       setIsSuccess(true);
     }
+    if (response.status === ERROR_SERVER_STATUS) {
+      setErrorMessage('unexpected error');
+    }
     setIsSaving(false);
   };
 
@@ -58,6 +62,7 @@ export const Form = () => {
     <>
       <h1>Create Product</h1>
       {isSuccess && <p>Product stored</p>}
+      <p>{errorMessage}</p>
       <form onSubmit={handleSubmit}>
         <TextField
           label="name"
