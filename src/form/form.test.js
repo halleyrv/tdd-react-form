@@ -23,6 +23,9 @@ afterAll(() => server.close());
 
 beforeEach(() => render(<Form />));
 
+// Reset any runtime request handlers we may add during the tests.
+afterEach(() => server.resetHandlers());
+
 describe('when the form is mounted', () => {
   it('there must be a create product from page', () => {
     expect(
@@ -119,6 +122,31 @@ describe('when the users submits the form and the server returns an unexpected e
     fireEvent.click(screen.getByRole('button', {name: /submit/i}));
     await waitFor(() =>
       expect(screen.getByText(/unexpected error/i)).toBeInTheDocument(),
+    );
+  });
+});
+
+describe('when the users submits the form and the server returns an invalid  request error', () => {
+  it('the form page must display the error message "The form is invalid, the fields [field1...fieldN] are required"', async () => {
+    server.use(
+      rest.post('/products', (req, res, ctx) => {
+        // Respond with "500 Internal Server Error" status for this test.
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message:
+              'the form is invalid, the fields name, size, type are required',
+          }),
+        );
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          /the form is invalid, the fields name, size, type are required/i,
+        ),
+      ).toBeInTheDocument(),
     );
   });
 });

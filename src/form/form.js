@@ -5,7 +5,11 @@ import NativeSelect from '@mui/material/NativeSelect';
 import Button from '@mui/material/Button';
 
 import {saveProduct} from '../services/productServices';
-import {CREATED_STATUS, ERROR_SERVER_STATUS} from '../consts/httpStatus';
+import {
+  CREATED_STATUS,
+  ERROR_SERVER_STATUS,
+  INVALID_REQUEST_STATUS,
+} from '../consts/httpStatus';
 
 export const Form = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -36,20 +40,38 @@ export const Form = () => {
     type: type.value,
   });
 
+  const handleFetchError = async err => {
+    if (err.status === ERROR_SERVER_STATUS) {
+      setErrorMessage('unexpected error');
+    }
+
+    if (err.status === INVALID_REQUEST_STATUS) {
+      const data = await err.json();
+      setErrorMessage(data.message);
+    }
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     const {name, size, type} = e.target.elements;
 
     setIsSaving(true);
     validateForm(getFormValues({name, size, type}));
-    const response = await saveProduct(getFormValues({name, size, type}));
-    if (response.status === CREATED_STATUS) {
-      e.target.reset();
-      setIsSuccess(true);
+    try {
+      const response = await saveProduct(getFormValues({name, size, type}));
+
+      if (!response.ok) {
+        throw response;
+      }
+
+      if (response.status === CREATED_STATUS) {
+        e.target.reset();
+        setIsSuccess(true);
+      }
+    } catch (err) {
+      handleFetchError(err);
     }
-    if (response.status === ERROR_SERVER_STATUS) {
-      setErrorMessage('unexpected error');
-    }
+
     setIsSaving(false);
   };
 
