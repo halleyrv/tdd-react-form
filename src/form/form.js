@@ -43,12 +43,16 @@ export const Form = () => {
   const handleFetchError = async err => {
     if (err.status === ERROR_SERVER_STATUS) {
       setErrorMessage('unexpected error');
+      return;
     }
 
     if (err.status === INVALID_REQUEST_STATUS) {
       const data = await err.json();
       setErrorMessage(data.message);
+      return;
     }
+
+    setErrorMessage('Connection error, please try later');
   };
 
   const handleSubmit = async e => {

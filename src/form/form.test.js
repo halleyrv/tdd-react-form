@@ -150,3 +150,19 @@ describe('when the users submits the form and the server returns an invalid  req
     );
   });
 });
+
+describe('when the users submits the form and the server returns unfound server', () => {
+  it('the form page must display the error message "connection error please try later"', async () => {
+    server.use(
+      rest.post('/products', (req, res) =>
+        res.networkError('Failed to connect'),
+      ),
+    );
+    fireEvent.click(screen.getByRole('button', {name: /submit/i}));
+    await waitFor(() =>
+      expect(
+        screen.getByText(/connection error, please try later/i),
+      ).toBeInTheDocument(),
+    );
+  });
+});
