@@ -1,8 +1,12 @@
 import React, {useState} from 'react';
 import TextField from '@mui/material/TextField';
-import {InputLabel} from '@mui/material';
-import NativeSelect from '@mui/material/NativeSelect';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 
 import {saveProduct} from '../services/productServices';
 import {
@@ -14,7 +18,7 @@ import {
 export const Form = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
@@ -24,7 +28,7 @@ export const Form = () => {
   const validateField = ({name, value}) => {
     setFormErrors(prevState => ({
       ...prevState,
-      [name]: value.length ? '' : `${name} is required`,
+      [name]: value.length ? '' : `The ${name} is required`,
     }));
   };
 
@@ -40,9 +44,9 @@ export const Form = () => {
     type: type.value,
   });
 
-  const handleFetchError = async err => {
+  const handleFetchErrors = async err => {
     if (err.status === ERROR_SERVER_STATUS) {
-      setErrorMessage('unexpected error');
+      setErrorMessage('Unexpected error, please try again');
       return;
     }
 
@@ -57,10 +61,13 @@ export const Form = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const {name, size, type} = e.target.elements;
 
     setIsSaving(true);
+
+    const {name, size, type} = e.target.elements;
+
     validateForm(getFormValues({name, size, type}));
+
     try {
       const response = await saveProduct(getFormValues({name, size, type}));
 
@@ -73,7 +80,7 @@ export const Form = () => {
         setIsSuccess(true);
       }
     } catch (err) {
-      handleFetchError(err);
+      handleFetchErrors(err);
     }
 
     setIsSaving(false);
@@ -85,45 +92,72 @@ export const Form = () => {
   };
 
   return (
-    <>
-      <h1>Create Product</h1>
-      {isSuccess && <p>Product stored</p>}
-      <p>{errorMessage}</p>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="name"
-          id="name"
-          name="name"
-          helperText={formErrors.name}
-          onBlur={handleBlur}
-        />
-        <TextField
-          label="size"
-          id="size"
-          name="size"
-          helperText={formErrors.size}
-          onBlur={handleBlur}
-        />
-        <InputLabel htmlFor="type">type</InputLabel>
-        <NativeSelect
-          defaultValue=""
-          inputProps={{
-            name: 'type',
-            id: 'type',
-          }}
-        >
-          <option value="">Select one Option</option>
-          <option value="electronic">electronic</option>
-          <option value="furniture">furniture</option>
-          <option value="clothing">clothing</option>
-        </NativeSelect>
-        {formErrors.type.length && <p>{formErrors.type}</p>}
+    <Container maxWidth="xs">
+      <CssBaseline />
 
-        <Button disabled={isSaving} type="submit">
-          Submit
-        </Button>
+      <Typography component="h1" variant="h5" align="center">
+        Create product
+      </Typography>
+
+      {isSuccess && <p>Product Stored</p>}
+
+      <p>{errorMessage}</p>
+
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="name"
+              id="name"
+              name="name"
+              helperText={formErrors.name}
+              onBlur={handleBlur}
+              error={!!formErrors.name.length}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="size"
+              id="size"
+              name="size"
+              helperText={formErrors.size}
+              onBlur={handleBlur}
+              error={!!formErrors.size.length}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <InputLabel htmlFor="type">Type</InputLabel>
+
+            <Select
+              native
+              fullWidth
+              error={!!formErrors.type.length}
+              inputProps={{
+                name: 'type',
+                id: 'type',
+              }}
+            >
+              <option aria-label="None" value="" />
+              <option value="electronic">Electronic</option>
+              <option value="furniture">Furniture</option>
+              <option value="clothing">Clothing</option>
+            </Select>
+
+            {!!formErrors.type && <p>{formErrors.type}</p>}
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button fullWidth disabled={isSaving} type="submit">
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
       </form>
-    </>
+    </Container>
   );
 };
 
